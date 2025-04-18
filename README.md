@@ -164,6 +164,44 @@ curl -X POST http://localhost:4000/webhook/github -H "Content-Type: application/
 
 ---
 
+## Webhook & Authentication API
+
+This API provides endpoints for user authentication, subscription management, and receiving incoming webhook events.
+
+---
+
+### **Authentication Endpoints**
+
+| Method | Endpoint       | Description                 | Access       |
+|--------|----------------|-----------------------------|--------------|
+| POST   | `/register`    | Register a new user         | Public       |
+| POST   | `/login`       | Log in a user               | Public       |
+| POST   | `/logout`      | Log out the current user    | Public       |
+| GET    | `/me`          | Get current authenticated user info | Protected ✅ |
+
+---
+
+### **Webhook Subscription Endpoints**
+
+| Method | Endpoint                     | Description                                  | Access       |
+|--------|------------------------------|----------------------------------------------|--------------|
+| POST   | `/subscribe`                 | Subscribe to a webhook                       | Protected ✅ |
+| GET    | `/subscriptions`            | Get list of user subscriptions               | Protected ✅ |
+| DELETE | `/unsubscribe/:id`           | Unsubscribe from a specific webhook          | Protected ✅ |
+| DELETE | `/subscription/:id`          | Delete a specific subscription               | Protected ✅ |
+<!-- | GET    | `/subscription/:id/events` | Get events for a specific subscription      | Protected ✅ | -->
+| GET    | `/events`                    | Get all events received via user webhooks    | Protected ✅ |
+
+---
+
+### **Incoming Webhook Endpoint**
+
+| Method | Endpoint              | Description                                     | Access |
+|--------|-----------------------|-------------------------------------------------|--------|
+| POST   | `/incoming/:source`   | Receive a webhook from an external source      | Public |
+
+---
+
 ## Testing & Debugging
 
 - Webhook events are logged in MongoDB.
