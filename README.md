@@ -145,16 +145,8 @@ RETRY_BASE_DELAY=5000 # in milliseconds
 #### Start the main server (API and worker):
 
 ```bash
-npm run start
+npm run dev (both for backend and frontend)
 ```
-
-#### Optional: Run retry worker separately
-
-```bash
-node retryWorker.js
-```
-
-> You can also use a process manager like PM2 for production deployment and scaling.
 
 ---
 
