@@ -215,31 +215,40 @@ Receives a webhook from external systems.
 
 ---
 
-##  Simulated the Full Backend System – test.js  
+---
 
-The test.js script is a self-contained simulation tool that mimics the entire webhook system workflow. It's useful for local testing, CI/CD pipelines, and demo environments to validate the complete backend logic without needing external webhook providers.  
-  
-What It Does  
-Creates mock webhook events  
+## `test.js` Simulation Tool
 
-- Inserts events into MongoDB with pending status  
+### What It Does
+The `test.js` script is a **self-contained simulation utility** that mimics the **entire webhook system workflow**, making it perfect for:
 
-- Pushes events to the Redis queue (webhook:queue)  
+- Local testing  
+- CI/CD pipeline validations  
+- Demos and presentations  
 
-- Publishes notifications to webhook:new (Pub/Sub)  
+---
 
-- Simulates worker pickup and delivery attempts  
+### Simulation Workflow
+Here's what the script simulates step-by-step:
 
-- Triggers retry logic if delivery fails  
+1. **Creates mock webhook events**
+2. **Inserts events into MongoDB** with status `pending`
+3. **Pushes events to a Redis queue** (`webhook:queue`)
+4. **Publishes to a Redis Pub/Sub channel** (`webhook:new`)
+5. **Simulates worker processing and delivery**
+6. **Triggers retry logic** on delivery failures
+7. **Logs status updates** such as:
+   - `success`
+   - `retrying`
+   - `failed`
 
-- Logs status updates (success, failed, etc.)  
+---
 
--How to Run
+###  How to Run
 
+```bash
 node test.js
-
-Here’s a **professionally structured and well-formatted README** for both the **backend** and **frontend** of your **Webhook Delivery System**, organized into two separate sections for clarity.
-
+```
 ---
 
 # Webhook Delivery System
