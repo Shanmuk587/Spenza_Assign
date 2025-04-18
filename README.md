@@ -244,6 +244,66 @@ Here's what the script simulates step-by-step:
 
 ---
 
+Absolutely! Here's a clear, well-structured **README-style documentation** for your **Webhook Processing Architecture** – suitable for your repo or team handoff:
+
+---
+
+## 🕸️ Webhook Processing Architecture
+
+This system implements a **reliable, asynchronous webhook delivery mechanism** using **MongoDB**, **Redis**, and **Node.js workers**.
+
+---
+
+### Summary of Webhook Flow
+
+#### 1. Webhook Receipt
+- External systems send a webhook to your API endpoint.
+- The controller **immediately responds with `HTTP 202 Accepted`**.
+- Event is saved to **MongoDB** with a status of `'pending'`.
+
+#### 2. Queueing with Redis
+- Event ID is pushed into a Redis **List**: `webhook:queue` using `RPUSH`.
+- A notification is sent via Redis **Pub/Sub** channel: `webhook:new`.
+
+#### 3. Worker Processing
+- Worker is subscribed to the `webhook:new` channel.
+- On receiving a message:
+  - Worker `LPOP`s the event from `webhook:queue`.
+  - Fetches the full event data from **MongoDB**.
+  - Attempts to deliver the webhook to its destination.
+
+#### 4. Success Path
+- If delivery is successful:
+  - MongoDB event status is updated to `'success'`.
+
+#### 5. Failure and Retry Path
+- If delivery fails:
+  - Status is updated to `'failed'`.
+  - The event is added to `webhook:retry` (**Redis ZSET**) with a score representing the **next retry timestamp**.
+
+#### 6. Retry Logic
+- A retry worker periodically checks `webhook:retry` using `ZRANGEBYSCORE`.
+- For events whose retry timestamp is due:
+  - Re-attempt delivery.
+  - If it fails **but retry attempts remain**, it’s re-added with an increased delay.
+  - If **max retries** are reached, it is marked as `'permanently_failed'`.
+
+#### 7. Monitoring & Recovery
+- Optional **debug endpoints** to inspect the state of queues and failed events.
+- Periodic retries using `setInterval` for resilience and missed events.
+
+---
+
+### Key Redis Keys Used
+
+| Redis Key         | Type       | Description                              |
+|------------------|------------|------------------------------------------|
+| `webhook:queue`  | List       | Main event queue for incoming webhooks   |
+| `webhook:new`    | Pub/Sub    | Channel to notify workers of new events  |
+| `webhook:retry`  | Sorted Set | Stores failed events for scheduled retry |
+
+---
+
 ###  How to Run
 
 ```bash
