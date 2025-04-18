@@ -170,7 +170,6 @@ Returns current Redis queue size and retry queue info.
 
 ## 🧪 Testing & Debugging
 
-- Use `GET /debug/status` to inspect queue lengths.
 - Webhook events are logged in MongoDB.
 - Enable verbose logs in `webhookWorker.js` to see delivery attempts and retries.
 
@@ -215,3 +214,109 @@ Creates mock webhook events
 -How to Run
 
 node test.js
+
+
+
+🔮 Webhook Dashboard Frontend
+This is the frontend interface for the Webhook Processing System, built to monitor webhook events in real-time with support for filtering, pagination.
+
+It connects to the backend system via RESTful APIs and provides a user-friendly way to track, filter, and inspect webhook event logs.
+
+🚀 Features
+📡 Real-Time Polling: Automatically fetches new webhook logs every few seconds to reflect live system activity.
+
+🔎 Advanced Filtering: Filter events by:
+
+✅ Status (pending, success, failed, etc.)
+
+🌐 Source (e.g., github, stripe, etc.)
+
+📄 Pagination: Efficient loading and navigation of logs across large datasets.
+
+🔐 Authentication & Authorization:
+
+Uses JWT-based login flow
+
+Role-based access if implemented on backend
+
+🌗 Responsive UI: Designed for both desktop and mobile usability.
+
+🧰 Tech Stack
+React.js + Axios – SPA and API communication
+
+React Router – Routing and navigation
+
+JWT Auth – Secured login and token-based session handling
+
+TailwindCSS – Simple UI styling (update based on what you used)
+
+React Hooks – State and side effects (e.g. polling)
+
+
+📥 Install dependencies
+bash
+Copy
+Edit
+npm install
+🔑 Environment Setup
+Create a .env file:
+
+env
+Copy
+Edit
+REACT_APP_API_URL=http://localhost:5000/api
+▶️ Run the App
+bash
+Copy
+Edit
+npm run dev
+The app will be available at: http://localhost:3000
+
+🔐 Auth Flow
+Login with credentials (calls POST /auth/login)
+
+JWT is stored in localStorage
+
+All API requests are made with Authorization: Bearer <token>
+
+Protected routes require token validation
+
+Logout clears token and redirects to login
+
+📊 Logs Dashboard
+Webhooks are fetched via /webhooks?status=pending&source=github&page=2
+
+Polling happens every 5 seconds to reflect real-time status updates
+
+Retry, success, and permanently failed events are visibly tagged
+
+Pagination limit can be configured via query params
+
+✨ Design Considerations
+Polling vs WebSocket: Chose polling for simplicity and compatibility across platforms (can scale to SSE or WebSockets later)
+
+JWT Auth: Keeps the frontend stateless and scalable
+
+Component-based UI: Ensures maintainability and reusability
+
+🧪 Future Improvements
+Migrate polling to WebSocket or Server-Sent Events (SSE) for better efficiency
+
+Add role-based dashboard views
+
+Implement event detail modal with raw payload
+
+Add export to CSV/PDF feature
+
+🤝 Integration
+Make sure your backend exposes endpoints like:
+
+POST /auth/login
+
+GET /webhooks
+
+GET /webhooks/:id
+
+GET /sources – for filter dropdown
+
+All endpoints should validate JWT token in Authorization header
