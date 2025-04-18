@@ -215,108 +215,254 @@ Creates mock webhook events
 
 node test.js
 
+Here’s a **professionally structured and well-formatted README** for both the **backend** and **frontend** of your **Webhook Delivery System**, organized into two separate sections for clarity.
 
+---
 
-🔮 Webhook Dashboard Frontend
-This is the frontend interface for the Webhook Processing System, built to monitor webhook events in real-time with support for filtering, pagination.
+# 📡 Webhook Delivery System
 
-It connects to the backend system via RESTful APIs and provides a user-friendly way to track, filter, and inspect webhook event logs.
+A robust, scalable system for receiving, processing, retrying, and monitoring webhooks with real-time insights. Built with **Node.js**, **Express**, **MongoDB**, **Redis**, and **React.js**.
 
-🚀 Features
-📡 Real-Time Polling: Automatically fetches new webhook logs every few seconds to reflect live system activity.
+---
 
-🔎 Advanced Filtering: Filter events by:
+## 📁 Repository Structure
 
-✅ Status (pending, success, failed, etc.)
+```bash
+.
+├── backend/       # Node.js + Redis + MongoDB webhook processor
+│   └── README.md
+└── frontend/      # React.js dashboard for monitoring webhooks
+    └── README.md
+```
 
-🌐 Source (e.g., github, stripe, etc.)
+---
 
-📄 Pagination: Efficient loading and navigation of logs across large datasets.
+## 📦 Backend – Reliable Webhook Processor
 
-🔐 Authentication & Authorization:
+This service receives webhooks, queues them for processing, performs automatic retries, and stores the status of each event.
 
-Uses JWT-based login flow
+### 🚀 Tech Stack
 
-Role-based access if implemented on backend
+- **Node.js + Express** – API server
+- **Redis** – Queueing, Pub/Sub, Retry scheduling
+- **MongoDB** – Persistent event storage
+- **dotenv** – Config management
 
-🌗 Responsive UI: Designed for both desktop and mobile usability.
+---
 
-🧰 Tech Stack
-React.js + Axios – SPA and API communication
+### 🧩 Key Features
 
-React Router – Routing and navigation
+- ✅ **Fast Acknowledgement**: HTTP 202 response to all webhooks
+- 🔁 **Retry Logic**: Exponential backoff using Redis ZSET
+- 📦 **Queue System**: Redis List + Pub/Sub for worker distribution
+- 🧠 **Persistence**: MongoDB for event storage and status tracking
+- 📊 **Monitoring**: REST endpoint for checking queue state
+- ♻️ **Worker System**: Scalable delivery workers using Redis LPOP
+- 🧪 **`test.js` Simulation**: End-to-end simulation tool
 
-JWT Auth – Secured login and token-based session handling
+---
 
-TailwindCSS – Simple UI styling (update based on what you used)
+### 🏗️ Architecture Diagram
 
-React Hooks – State and side effects (e.g. polling)
+```
+Incoming Webhook ─▶ API (202 Accepted)
+       │
+       ▼
+ Save to MongoDB (pending)
+       │
+       ▼
+ Push to Redis Queue (LPOP + Pub/Sub)
+       │
+       ▼
+    Worker:
+    ├─ POST to target URL
+    ├─ If Success → Update DB (success)
+    └─ If Fail → Add to Retry Queue (ZADD)
+                     ↓
+            Retry Loop (ZREMRANGEBYSCORE)
+```
 
+---
 
-📥 Install dependencies
-bash
-Copy
-Edit
+### ⚙️ Getting Started
+
+#### 1. Prerequisites
+
+- Node.js v18+
+- Redis
+- MongoDB
+
+#### 2. Setup
+
+```bash
+git clone https://github.com/your-username/webhook-backend.git
+cd backend
 npm install
-🔑 Environment Setup
-Create a .env file:
+```
 
-env
-Copy
-Edit
-REACT_APP_API_URL=http://localhost:5000/api
-▶️ Run the App
-bash
-Copy
-Edit
+#### 3. Environment Variables
+
+Create a `.env` file:
+
+```env
+PORT=4000
+MONGO_URI=mongodb://localhost:27017/webhooks
+REDIS_URL=redis://localhost:6379
+MAX_RETRIES=5
+RETRY_BASE_DELAY=5000 # milliseconds
+```
+
+#### 4. Run the Server
+
+```bash
 npm run dev
-The app will be available at: http://localhost:3000
+```
 
-🔐 Auth Flow
-Login with credentials (calls POST /auth/login)
+---
 
-JWT is stored in localStorage
+### 📬 API Endpoints
 
-All API requests are made with Authorization: Bearer <token>
+#### `POST /webhook/:source`
 
-Protected routes require token validation
+Receives a webhook and adds it to the queue.
 
-Logout clears token and redirects to login
+```bash
+curl -X POST http://localhost:4000/webhook/github \
+  -H "Content-Type: application/json" \
+  -d '{"event":"build_success"}'
+```
 
-📊 Logs Dashboard
-Webhooks are fetched via /webhooks?status=pending&source=github&page=2
+#### `GET /debug/status`
 
-Polling happens every 5 seconds to reflect real-time status updates
+Returns Redis queue sizes and retry info.
 
-Retry, success, and permanently failed events are visibly tagged
+---
 
-Pagination limit can be configured via query params
+### 🧪 Testing Locally
 
-✨ Design Considerations
-Polling vs WebSocket: Chose polling for simplicity and compatibility across platforms (can scale to SSE or WebSockets later)
+Run the simulation script:
 
-JWT Auth: Keeps the frontend stateless and scalable
+```bash
+node test.js
+```
 
-Component-based UI: Ensures maintainability and reusability
+It creates mock events, pushes to Redis, simulates delivery, and handles retries.
 
-🧪 Future Improvements
-Migrate polling to WebSocket or Server-Sent Events (SSE) for better efficiency
+---
 
-Add role-based dashboard views
+### 🛡 Security Best Practices
 
-Implement event detail modal with raw payload
+- Authenticate webhook sources (via IPs or shared secrets)
+- Enforce HTTPS
+- Limit retry attempts to prevent flooding
 
-Add export to CSV/PDF feature
+---
 
-🤝 Integration
-Make sure your backend exposes endpoints like:
+### 🏁 Future Improvements
 
-POST /auth/login
+- 📨 Add Dead Letter Queue (DLQ)
+- ✅ Add signature verification for sources
+- 📊 Integrate Prometheus/Grafana
+- ⚙️ Add rate limiting & concurrency config
 
-GET /webhooks
+---
 
-GET /webhooks/:id
+## 🎨 Frontend – Webhook Monitoring Dashboard
 
-GET /sources – for filter dropdown
+A real-time dashboard to track and filter webhook events. Built with **React**, **TailwindCSS**, and **JWT Auth**.
 
-All endpoints should validate JWT token in Authorization header
+---
+
+### 🚀 Tech Stack
+
+- **React.js + Axios** – SPA + API requests
+- **React Router** – Route handling
+- **TailwindCSS** – UI Styling
+- **JWT Auth** – Secure access with token-based sessions
+
+---
+
+### 🔥 Features
+
+- 📡 **Real-Time Polling**: Fetches logs every 5 seconds
+- 🔎 **Filtering**: By status, source, date
+- 📄 **Pagination**: For large datasets
+- 🔐 **Login Protected**: JWT-based login
+- 🌓 **Responsive UI**: Mobile and desktop-friendly
+
+---
+
+### ⚙️ Setup Instructions
+
+#### 1. Install Dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+#### 2. Environment Configuration
+
+Create a `.env` file:
+
+```env
+REACT_APP_API_URL=http://localhost:4000
+```
+
+#### 3. Run the Dashboard
+
+```bash
+npm run dev
+```
+
+The app will be live at: [http://localhost:3000](http://localhost:3000)
+
+---
+
+### 🔐 Auth Flow
+
+- 🔑 **Login** via `POST /auth/login`
+- 📦 **Store JWT** in `localStorage`
+- 🔐 **Attach Token** to all `Authorization: Bearer <token>` headers
+- 🚪 **Logout** clears token and redirects
+
+---
+
+### 📊 Logs Page
+
+- View event logs via `GET /webhooks`
+- Filtering: `?status=failed&source=github&page=1`
+- Real-time: Polls API every 5 seconds
+- Pagination: Controlled via query params
+
+---
+
+### 🎯 Design Considerations
+
+- ⏱ Polling used for simplicity (replaceable with WebSocket/SSE)
+- ♻️ Stateless frontend via JWT
+- 🔄 Reusable component-based structure
+
+---
+
+### 🧪 Future Improvements
+
+- 🔄 Replace polling with WebSockets or SSE
+- 🧑‍💼 Role-based access control
+- 📄 Event detail view with raw payload
+- 📤 Export to CSV/PDF
+- 📈 Performance metrics
+
+---
+
+## 🤝 Backend + Frontend Integration Checklist
+
+Ensure backend provides:
+
+- `POST /auth/login` – returns JWT
+- `GET /webhooks` – with support for `status`, `source`, `page`
+- `GET /webhooks/:id` – fetch individual log
+- `GET /sources` – list of source types
+- JWT validation middleware
+
+---
