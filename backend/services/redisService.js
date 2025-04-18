@@ -8,7 +8,7 @@ const initializeRedis = async () => {
   try {
     redisClient = createClient({
         username: 'default',
-        password: 'CDoOooEBFzY8NdVHcFafVZ9zLwX6o3od',
+        password: process.env.REDIS_PASSWORD,
         socket: {
             host: 'redis-18492.c301.ap-south-1-1.ec2.redns.redis-cloud.com',
             port: 18492,
