@@ -1,91 +1,245 @@
-Redis Queue Webhook Flow Summary
-The Redis queue implementation for your webhook system creates a robust, scalable flow for processing webhooks. Here's a summary of the process flow:
-1. Webhook Receipt
+# 📡 Webhook Delivery System – Backend
 
-An external system sends a webhook to your API endpoint
-The controller immediately responds with a 202 status (Accepted)
-For each active subscription matching the source, a WebhookEvent is created in MongoDB with "pending" status
+This repository contains the backend implementation of a **reliable, scalable webhook handling system** using **Node.js**, **Express**, **MongoDB**, and **Redis**. The system ensures asynchronous delivery, automatic retries, and robustness through queue-based architecture.
 
-2. Queueing with Redis
+---
 
-Each webhook event ID is pushed to a Redis list using RPUSH webhook:queue eventId
-A notification is published via Redis Pub/Sub on the webhook:new channel
-This separates webhook receipt from processing, allowing for scalability
+## 🧩 Features
 
-3. Worker Processing
+- ✅ Immediate HTTP 202 response to incoming webhooks
+- 📦 Queue-based processing using Redis (List & Pub/Sub)
+- 🔁 Exponential retry logic via Redis Sorted Set (ZSET)
+- 🧠 Persistent storage of webhook events in MongoDB
+- 📊 Monitoring & recovery support
+- 🚀 Scalable architecture supporting distributed workers
 
-A webhook worker subscribes to the webhook:new channel
-When notification arrives, or on a timer (every 5 seconds), it checks the queue
-It pulls the next event from the queue using LPOP webhook:queue
-The worker fetches the full event details from MongoDB
-It attempts to deliver the webhook to the subscriber's callback URL
+---
 
-4. Success Path
+## 🏗️ Architecture Overview
 
-If delivery succeeds, the event status is updated to "success" in MongoDB
-Processing is complete for this webhook event
+```
+        ┌────────────┐
+        │ External   │
+        │ System     │
+        └────┬───────┘
+             │
+     [Webhook POST Request]
+             │
+             ▼
+     ┌───────────────┐
+     │ API Controller│
+     └────┬──────────┘
+          │ Immediate 202
+          │
+          ▼
+ ┌─────────────────────┐
+ │ Save to MongoDB     │ <────────┐
+ │ (status: pending)   │          │
+ └────────┬────────────┘          │
+          │                       │
+          ▼                       │
+  [Push ID to Redis queue]        │
+  [Publish via webhook:new]       │
+          │                       │
+          ▼                       │
+ ┌────────────┐       ┌──────────────┐
+ │  Worker    │<──────│  Subscriber  │
+ └────┬───────┘       └────┬─────────┘
+      │                    │
+ [LPOP queue]              │
+ [Fetch event from DB]     │
+ [POST to callback URL]    │
+      │                    │
+      ▼                    │
+┌────────────┐             │
+│ Success?   │────Yes────▶│
+└────┬───────┘             │
+     │No                   │
+     ▼                    │
+[Update to 'failed']      │
+[ZADD to retry queue]     │
+     │                    │
+     ▼                    │
+ ┌────────────┐
+ │ Retry Loop │
+ └────┬───────┘
+      ▼
+[ZRANGEBYSCORE]
+[Retry if due]
+[Exponential Backoff]
+[Max retries?]
 
-5. Failure and Retry Path
+```
 
-If delivery fails, the event status is updated to "failed" in MongoDB
-The event ID is added to a Redis sorted set (ZADD webhook:retry score eventId)
-The score is a Unix timestamp representing when to retry (using exponential backoff)
+---
 
-6. Retry Processing
+## 🧠 Design Choices & Architecture
 
-A retry processor periodically checks the sorted set using ZRANGEBYSCORE webhook:retry 0 currentTime
-For each due event, it removes it from the set and attempts delivery again
-If retry succeeds, the event is updated to "success"
-If retry fails but under max retries, it's re-added to the retry set with increased delay
-If max retries reached, it's marked as permanently failed
+### 1. **Separation of Concerns**
+- Webhook receipt is decoupled from processing using Redis. This ensures quick API responses and prevents long-running operations from blocking incoming traffic.
 
-7. Monitoring and Recovery
+### 2. **Redis for Fast Queuing**
+- **Redis List (`webhook:queue`)** acts as the primary queue.
+- **Pub/Sub (`webhook:new`)** notifies workers in real-time.
+- **Redis ZSET (`webhook:retry`)** manages scheduled retries.
 
-The debug endpoint allows checking queue lengths and Redis connection
-Regular interval checks ensure no events get stuck in the queue
+### 3. **Retry Mechanism**
+- Failed deliveries are retried with **exponential backoff**.
+- Retry timestamps are stored as scores in the ZSET.
 
-This architecture provides several benefits:
+### 4. **Persistence with MongoDB**
+- Every webhook event is stored in MongoDB to track status (`pending`, `success`, `failed`, `permanent_failure`).
 
-Immediate response to webhook sources
-Asynchronous processing for better performance
-Reliable delivery with persistent storage in MongoDB
-Automatic retries with exponential backoff
-Scalability as workers can be distributed across multiple servers
-Resilience to application restarts or crashes
+### 5. **Scalability & Fault Tolerance**
+- Multiple workers can run concurrently across servers.
+- Redis ensures atomic queue operations.
+- MongoDB persists the state even across system restarts.
 
-The Redis queue acts as the coordination mechanism between webhook receipt and processing, creating a system that's both fast and reliable.
+---
 
+## ⚙️ Getting Started
 
+### Prerequisites
 
+Ensure the following are installed:
 
+- Node.js (v18+)
+- MongoDB
+- Redis
 
-Webhook Processing Architecture
-Summary of Webhook Flow:
-Webhook Processing Architecture (Flow Overview):
-1. Webhook Receipt
-- External system sends a webhook to your API.
-- Your controller responds immediately with HTTP 202.
-- Event is saved in MongoDB with 'pending' status.
-2. Queueing with Redis
-- Event ID is pushed to 'webhook:queue' using RPUSH.
-- Redis publishes a message to 'webhook:new' channel.
-3. Worker Processing
-- Worker subscribes to 'webhook:new' channel.
-- On message, LPOP event from 'webhook:queue'.
-- Fetch event from MongoDB and attempt delivery.
-4. Success Path
-- On success, update MongoDB status to 'success'.
-5. Failure and Retry Path
-- On failure, update status to 'failed'.
-- Add to 'webhook:retry' (Redis ZSET) with retry score.
-6. Retry Processing
-- A retry worker polls 'webhook:retry' using ZRANGEBYSCORE.
-- On due timestamp, re-attempt delivery.
-- If fail but retries left, re-add with increased delay.
-- If max retries hit, mark as permanently failed.
-7. Monitoring & Recovery
-- Expose debug endpoints and use setInterval to retry missed events.
-Key Redis Keys Used:
-- webhook:queue -> Redis List (main queue)
-- webhook:new -> Pub/Sub channel (notify workers)
-- webhook:retry -> Redis ZSET (sorted retry queue)
+---
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/webhook-backend.git
+cd webhook-backend
+```
+
+---
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+---
+
+### 3. Environment Setup
+
+Create a `.env` file with the following content:
+
+```env
+PORT=4000
+MONGO_URI=mongodb://localhost:27017/webhooks
+REDIS_URL=redis://localhost:6379
+MAX_RETRIES=5
+RETRY_BASE_DELAY=5000 # in milliseconds
+```
+
+---
+
+### 4. Start the services
+
+#### Start the main server (API and worker):
+
+```bash
+npm run start
+```
+
+#### Optional: Run retry worker separately
+
+```bash
+node retryWorker.js
+```
+
+> You can also use a process manager like PM2 for production deployment and scaling.
+
+---
+
+## 📬 API Endpoints
+
+### `POST /webhook/:source`
+
+Receives a webhook from external systems.
+
+**Example**:
+
+```bash
+curl -X POST http://localhost:4000/webhook/github -H "Content-Type: application/json" -d '{"message":"build success"}'
+```
+
+### `GET /debug/status`
+
+Returns current Redis queue size and retry queue info.
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── controllers/
+│   └── webhookController.js
+├── workers/
+│   ├── webhookWorker.js
+│   └── retryWorker.js
+├── models/
+│   └── WebhookEvent.js
+├── redis/
+│   └── index.js
+├── routes/
+│   └── webhookRoutes.js
+├── utils/
+│   └── retryUtils.js
+├── .env
+├── server.js
+├── package.json
+└── README.md
+```
+
+---
+
+## 🧪 Testing & Debugging
+
+- Use `GET /debug/status` to inspect queue lengths.
+- Webhook events are logged in MongoDB.
+- Enable verbose logs in `webhookWorker.js` to see delivery attempts and retries.
+
+---
+
+## 🖥 Frontend
+
+The companion frontend is available in a separate repository:
+🔗 [Frontend Repo](https://github.com/your-username/webhook-frontend)
+
+It visualizes webhook events and their statuses, providing an interface to inspect delivery history and retry outcomes.
+
+---
+
+## 🔐 Security Notes
+
+- Validate source IPs or use secrets for authenticating incoming webhooks.
+- Limit retries to avoid infinite loops or webhook flooding.
+- Use HTTPS endpoints for secure delivery.
+
+---
+
+## 🏁 Improvements
+
+- Add dead-letter queue (DLQ) for manual inspection of permanently failed events.
+- Enable webhook signature verification.
+- Add dashboard with metrics (using Grafana or Prometheus).
+- Integrate rate limiting 
+
+---
+
+## 👨‍💻 Author
+
+**Shanmukesh** – [@shanmuk361](https://github.com/shanmuk361)  
+Feel free to connect for collaboration or questions.
+
+---
+
+Let me know if you want a matching `README.md` for the frontend or a diagram to include!
