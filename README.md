@@ -156,18 +156,6 @@ npm run dev
 
 Receives a webhook from external systems.
 
-**Example**:
-
-```bash
-curl -X POST http://localhost:4000/webhook/github -H "Content-Type: application/json" -d '{"message":"build success"}'
-```
-
----
-
-## Webhook & Authentication API
-
-This API provides endpoints for user authentication, subscription management, and receiving incoming webhook events.
-
 ---
 
 ### **Authentication Endpoints**
