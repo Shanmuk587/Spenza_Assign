@@ -6,16 +6,16 @@ This repository contains the backend implementation of a **reliable, scalable we
 
 ## 🧩 Features
 
-- ✅ Immediate HTTP 202 response to incoming webhooks
-- 📦 Queue-based processing using Redis (List & Pub/Sub)
-- 🔁 Exponential retry logic via Redis Sorted Set (ZSET)
-- 🧠 Persistent storage of webhook events in MongoDB
-- 📊 Monitoring & recovery support
-- 🚀 Scalable architecture supporting distributed workers
+- Immediate HTTP 202 response to incoming webhooks
+- Queue-based processing using Redis (List & Pub/Sub)
+- Exponential retry logic via Redis Sorted Set (ZSET)
+- Persistent storage of webhook events in MongoDB
+- Monitoring & recovery support
+- Scalable architecture supporting distributed workers
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```
         ┌────────────┐
@@ -73,7 +73,7 @@ This repository contains the backend implementation of a **reliable, scalable we
 
 ---
 
-## 🧠 Design Choices & Architecture
+## Design Choices & Architecture
 
 ### 1. **Separation of Concerns**
 - Webhook receipt is decoupled from processing using Redis. This ensures quick API responses and prevents long-running operations from blocking incoming traffic.
@@ -97,7 +97,7 @@ This repository contains the backend implementation of a **reliable, scalable we
 
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -145,12 +145,12 @@ RETRY_BASE_DELAY=5000 # in milliseconds
 #### Start the main server (API and worker):
 
 ```bash
-npm run dev (both for backend and frontend)
+npm run dev
 ```
 
 ---
 
-## 📬 API Endpoints
+## API Endpoints
 
 ### `POST /webhook/:source`
 
@@ -162,20 +162,16 @@ Receives a webhook from external systems.
 curl -X POST http://localhost:4000/webhook/github -H "Content-Type: application/json" -d '{"message":"build success"}'
 ```
 
-### `GET /debug/status`
-
-Returns current Redis queue size and retry queue info.
-
 ---
 
-## 🧪 Testing & Debugging
+## Testing & Debugging
 
 - Webhook events are logged in MongoDB.
 - Enable verbose logs in `webhookWorker.js` to see delivery attempts and retries.
 
 ---
 
-## 🔐 Security Notes
+## Security Notes
 
 - Validate source IPs or use secrets for authenticating incoming webhooks.
 - Limit retries to avoid infinite loops or webhook flooding.
@@ -183,12 +179,13 @@ Returns current Redis queue size and retry queue info.
 
 ---
 
-## 🏁 Improvements
+## Improvements
 
 - Add dead-letter queue (DLQ) for manual inspection of permanently failed events.
 - Enable webhook signature verification.
 - Add dashboard with metrics (using Grafana or Prometheus).
-- Integrate rate limiting 
+- Integrate rate limiting  
+- Debugging with current Redis queue size and retry queue info to test in actual Real life.
 
 ---
 
@@ -196,7 +193,7 @@ Returns current Redis queue size and retry queue info.
 
 The test.js script is a self-contained simulation tool that mimics the entire webhook system workflow. It's useful for local testing, CI/CD pipelines, and demo environments to validate the complete backend logic without needing external webhook providers.  
   
-🔁 What It Does  
+What It Does  
 Creates mock webhook events  
 
 - Inserts events into MongoDB with pending status  
@@ -219,13 +216,13 @@ Here’s a **professionally structured and well-formatted README** for both the 
 
 ---
 
-# 📡 Webhook Delivery System
+# Webhook Delivery System
 
 A robust, scalable system for receiving, processing, retrying, and monitoring webhooks with real-time insights. Built with **Node.js**, **Express**, **MongoDB**, **Redis**, and **React.js**.
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```bash
 .
@@ -237,13 +234,13 @@ A robust, scalable system for receiving, processing, retrying, and monitoring we
 
 ---
 
-## 🎨 Frontend – Webhook Monitoring Dashboard
+## Frontend – Webhook Monitoring Dashboard
 
 A real-time dashboard to track and filter webhook events. Built with **React**, **TailwindCSS**, and **JWT Auth**.
 
 ---
 
-### 🚀 Tech Stack
+### Tech Stack
 
 - **React.js + Axios** – SPA + API requests
 - **React Router** – Route handling
@@ -252,17 +249,17 @@ A real-time dashboard to track and filter webhook events. Built with **React**, 
 
 ---
 
-### 🔥 Features
+### Features
 
-- 📡 **Real-Time Polling**: Fetches logs every 5 seconds
-- 🔎 **Filtering**: By status, source, date
-- 📄 **Pagination**: For large datasets
-- 🔐 **Login Protected**: JWT-based login
-- 🌓 **Responsive UI**: Mobile and desktop-friendly
+- **Real-Time Polling**: Fetches logs every 5 seconds
+- **Filtering**: By status, source, date
+- **Pagination**: For large datasets
+- **Login Protected**: JWT-based login
+- **Responsive UI**: Mobile and desktop-friendly
 
 ---
 
-### ⚙️ Setup Instructions
+### Setup Instructions
 
 #### 1. Install Dependencies
 
@@ -271,15 +268,7 @@ cd frontend
 npm install
 ```
 
-#### 2. Environment Configuration
-
-Create a `.env` file:
-
-```env
-REACT_APP_API_URL=http://localhost:4000
-```
-
-#### 3. Run the Dashboard
+#### 2. Run the Dashboard
 
 ```bash
 npm run dev
@@ -289,16 +278,16 @@ The app will be live at: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-### 🔐 Auth Flow
+### Auth Flow
 
-- 🔑 **Login** via `POST /auth/login`
-- 📦 **Store JWT** in `localStorage`
-- 🔐 **Attach Token** to all `Authorization: Bearer <token>` headers
-- 🚪 **Logout** clears token and redirects
+- **Login** via `POST /auth/login`
+- **Store JWT** in `localStorage`
+- **Attach Token** to all `Authorization: Bearer <token>` headers
+- **Logout** clears token and redirects
 
 ---
 
-### 📊 Logs Page
+### Logs Page
 
 - View event logs via `GET /webhooks`
 - Filtering: `?status=failed&source=github&page=1`
@@ -307,32 +296,20 @@ The app will be live at: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-### 🎯 Design Considerations
+### Design Considerations
 
-- ⏱ Polling used for simplicity (replaceable with WebSocket/SSE)
-- ♻️ Stateless frontend via JWT
-- 🔄 Reusable component-based structure
+- Polling used for simplicity (replaceable with WebSocket/SSE)
+- Stateless frontend via JWT
+- Reusable component-based structure
 
 ---
 
-### 🧪 Future Improvements
+### Improvements
 
-- 🔄 Replace polling with WebSockets or SSE
+- 🔄 Replace polling with WebSockets
 - 🧑‍💼 Role-based access control
 - 📄 Event detail view with raw payload
 - 📤 Export to CSV/PDF
 - 📈 Performance metrics
-
----
-
-## 🤝 Backend + Frontend Integration Checklist
-
-Ensure backend provides:
-
-- `POST /auth/login` – returns JWT
-- `GET /webhooks` – with support for `status`, `source`, `page`
-- `GET /webhooks/:id` – fetch individual log
-- `GET /sources` – list of source types
-- JWT validation middleware
 
 ---
