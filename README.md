@@ -176,31 +176,6 @@ Returns current Redis queue size and retry queue info.
 
 ---
 
-## 📁 Project Structure
-
-```
-.
-├── controllers/
-│   └── webhookController.js
-├── workers/
-│   ├── webhookWorker.js
-│   └── retryWorker.js
-├── models/
-│   └── WebhookEvent.js
-├── redis/
-│   └── index.js
-├── routes/
-│   └── webhookRoutes.js
-├── utils/
-│   └── retryUtils.js
-├── .env
-├── server.js
-├── package.json
-└── README.md
-```
-
----
-
 ## 🧪 Testing & Debugging
 
 - Use `GET /debug/status` to inspect queue lengths.
