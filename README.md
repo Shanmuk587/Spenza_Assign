@@ -177,7 +177,7 @@ Receives a webhook from external systems.
 | GET    | `/subscriptions`            | Get list of user subscriptions               | Protected ✅ |
 | DELETE | `/unsubscribe/:id`           | Unsubscribe from a specific webhook          | Protected ✅ |
 | DELETE | `/subscription/:id`          | Delete a specific subscription               | Protected ✅ |
-<!-- | GET    | `/subscription/:id/events` | Get events for a specific subscription      | Protected ✅ | -->
+| GET    | `/subscription/:id/events` | Get events for a specific subscription      | Protected ✅ |
 | GET    | `/events`                    | Get all events received via user webhooks    | Protected ✅ |
 
 ---
