@@ -1,10 +1,10 @@
-# 📡 Webhook Delivery System – Backend
+# Webhook Delivery System – Backend
 
 This repository contains the backend implementation of a **reliable, scalable webhook handling system** using **Node.js**, **Express**, **MongoDB**, and **Redis**. The system ensures asynchronous delivery, automatic retries, and robustness through queue-based architecture.
 
 ---
 
-## 🧩 Features
+## Features
 
 - Immediate HTTP 202 response to incoming webhooks
 - Queue-based processing using Redis (List & Pub/Sub)
