@@ -350,7 +350,7 @@ npm install
 npm run dev
 ```
 
-The app will be live at: [http://localhost:3000](http://localhost:3000)
+The app will be live at: [http://localhost:3000](http://localhost:5134)
 
 ---
 
