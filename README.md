@@ -310,24 +310,6 @@ node test.js
 ```
 ---
 
-# Webhook Delivery System
-
-A robust, scalable system for receiving, processing, retrying, and monitoring webhooks with real-time insights. Built with **Node.js**, **Express**, **MongoDB**, **Redis**, and **React.js**.
-
----
-
-## Repository Structure
-
-```bash
-.
-├── backend/       # Node.js + Redis + MongoDB webhook processor
-│   └── README.md
-└── frontend/      # React.js dashboard for monitoring webhooks
-    └── README.md
-```
-
----
-
 ## Frontend – Webhook Monitoring Dashboard
 
 A real-time dashboard to track and filter webhook events. Built with **React**, **TailwindCSS**, and **JWT Auth**.
