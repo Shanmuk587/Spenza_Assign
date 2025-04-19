@@ -186,11 +186,11 @@ npm install
 Create a `.env` file with the following content:
 
 ```env
-PORT=4000
-MONGO_URI=mongodb://localhost:27017/webhooks
-REDIS_URL=redis://localhost:6379
-MAX_RETRIES=5
-RETRY_BASE_DELAY=5000 # in milliseconds
+PORT=3000
+MONGODB_URI=mongodb://localhost:27017/webhooks
+JWT_SECRET=jwtsecret
+NODE_ENV='development'
+REDIS_PASSWORD=redispassword
 ```
 
 ---
@@ -262,7 +262,8 @@ Receives a webhook from external systems.
 
 ## Improvements
 
-- Add dead-letter queue (DLQ) for manual inspection of permanently failed events.
+- Add dead-letter queue (DLQ) for manual inspection of permanently failed events.  
+- Adding Validation to Incoming webhook endpoint
 - Enable webhook signature verification.
 - Add dashboard with metrics (using Grafana or Prometheus).
 - Integrate rate limiting  
